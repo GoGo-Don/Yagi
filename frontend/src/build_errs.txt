@@ -1,0 +1,91 @@
+error[E0277]: expected a `FnOnce(&_)` closure, found `()`
+  --> src/components/goat_list.rs:28:36
+   |
+28 |         use_memo(move || dispatch, ())
+   |         --------                   ^^ expected an `FnOnce(&_)` closure, found `()`
+   |         |
+   |         required by a bound introduced by this call
+   |
+   = help: the trait `for<'a> FnOnce(&'a _)` is not implemented for `()`
+note: required by a bound in `yew::use_memo`
+  --> /home/gg/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/yew-0.21.0/src/functional/hooks/use_memo.rs:77:8
+   |
+74 | pub fn use_memo<T, F, D>(deps: D, f: F) -> Rc<T>
+   |        -------- required by a bound in this function
+...
+77 |     F: FnOnce(&D) -> T,
+   |        ^^^^^^^^^^^^^^^ required by this bound in `use_memo`
+
+error[E0277]: can't compare `{closure@src/components/goat_list.rs:28:18: 28:25}` with `{closure@src/components/goat_list.rs:28:18: 28:25}`
+  --> src/components/goat_list.rs:28:18
+   |
+28 |         use_memo(move || dispatch, ())
+   |         -------- ^^^^^^^^^^^^^^^^ no implementation for `{closure@src/components/goat_list.rs:28:18: 28:25} == {closure@src/components/goat_list.rs:28:18: 28:25}`
+   |         |
+   |         required by a bound introduced by this call
+   |
+   = help: the trait `PartialEq` is not implemented for closure `{closure@src/components/goat_list.rs:28:18: 28:25}`
+note: required by a bound in `yew::use_memo`
+  --> /home/gg/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/yew-0.21.0/src/functional/hooks/use_memo.rs:78:18
+   |
+74 | pub fn use_memo<T, F, D>(deps: D, f: F) -> Rc<T>
+   |        -------- required by a bound in this function
+...
+78 |     D: 'static + PartialEq,
+   |                  ^^^^^^^^^ required by this bound in `use_memo`
+
+error[E0277]: expected a `FnOnce(&{closure@src/components/goat_list.rs:28:18: 28:25})` closure, found `()`
+  --> src/components/goat_list.rs:28:9
+   |
+28 |         use_memo(move || dispatch, ())
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected an `FnOnce(&{closure@src/components/goat_list.rs:28:18: 28:25})` closure, found `()`
+   |
+   = help: the trait `for<'a> FnOnce(&'a {closure@src/components/goat_list.rs:28:18: 28:25})` is not implemented for `()`
+note: required by a bound in `yew::use_memo`
+  --> /home/gg/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/yew-0.21.0/src/functional/hooks/use_memo.rs:77:8
+   |
+74 | pub fn use_memo<T, F, D>(deps: D, f: F) -> Rc<T>
+   |        -------- required by a bound in this function
+...
+77 |     F: FnOnce(&D) -> T,
+   |        ^^^^^^^^^^^^^^^ required by this bound in `use_memo`
+   = note: the full name for the type has been written to '/home/gg/Documents/Livestock_Management/Yagi/frontend/target/wasm32-unknown-unknown/debug/deps/frontend-37690ee9142f4a1c.long-type-1636764097127382837.txt'
+   = note: consider using `--verbose` to print the full type name to the console
+
+error[E0277]: expected a `FnOnce(&{closure@src/components/goat_list.rs:28:18: 28:25})` closure, found `()`
+  --> src/components/goat_list.rs:28:9
+   |
+28 |         use_memo(move || dispatch, ())
+   |         ^^^^^^^^ expected an `FnOnce(&{closure@src/components/goat_list.rs:28:18: 28:25})` closure, found `()`
+   |
+   = help: the trait `for<'a> FnOnce(&'a {closure@src/components/goat_list.rs:28:18: 28:25})` is not implemented for `()`
+note: required by a bound in `yew::use_memo`
+  --> /home/gg/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/yew-0.21.0/src/functional/hooks/use_memo.rs:77:8
+   |
+74 | pub fn use_memo<T, F, D>(deps: D, f: F) -> Rc<T>
+   |        -------- required by a bound in this function
+...
+77 |     F: FnOnce(&D) -> T,
+   |        ^^^^^^^^^^^^^^^ required by this bound in `use_memo`
+   = note: the full name for the type has been written to '/home/gg/Documents/Livestock_Management/Yagi/frontend/target/wasm32-unknown-unknown/debug/deps/frontend-37690ee9142f4a1c.long-type-1636764097127382837.txt'
+   = note: consider using `--verbose` to print the full type name to the console
+
+error[E0277]: can't compare `{closure@src/components/goat_list.rs:28:18: 28:25}` with `{closure@src/components/goat_list.rs:28:18: 28:25}`
+  --> src/components/goat_list.rs:28:9
+   |
+28 |         use_memo(move || dispatch, ())
+   |         ^^^^^^^^ no implementation for `{closure@src/components/goat_list.rs:28:18: 28:25} == {closure@src/components/goat_list.rs:28:18: 28:25}`
+   |
+   = help: the trait `PartialEq` is not implemented for closure `{closure@src/components/goat_list.rs:28:18: 28:25}`
+note: required by a bound in `yew::use_memo`
+  --> /home/gg/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/yew-0.21.0/src/functional/hooks/use_memo.rs:78:18
+   |
+74 | pub fn use_memo<T, F, D>(deps: D, f: F) -> Rc<T>
+   |        -------- required by a bound in this function
+...
+78 |     D: 'static + PartialEq,
+   |                  ^^^^^^^^^ required by this bound in `use_memo`
+
+For more information about this error, try `rustc --explain E0277`.
+warning: `frontend` (lib) generated 3 warnings
+error: could not compile `frontend` (lib) due to 5 previous errors; 3 warnings emitted

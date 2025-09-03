@@ -1,0 +1,28 @@
+form {
+    margin: 20px 0;
+}
+
+input[type="number"] {
+    padding: 5px;
+    margin-right: 10px;
+    width: 100px;
+}
+
+button {
+    padding: 5px 15px;
+    background-color: #d9534f;
+    border: none;
+    color: white;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #c9302c;
+}
+
+.response-message {
+    margin-top: 15px;
+    font-family: monospace;
+    white-space: pre-wrap;
+    color: #333;
+}

@@ -1,0 +1,29 @@
+src
+├── main.rs                // App initialization and logging setup
+├── app.rs                 // Root component, sets up routing/layout
+├── components
+│   ├── dashboard/
+│   │   ├── mod.rs         // Re-exports dashboard components
+│   │   ├── calendar.rs    // Farm calendar widget
+│   │   ├── metrics_row.rs // Herd metrics overview
+│   │   ├── charts/
+│   │       ├── mod.rs
+│   │       ├── disease_histogram.rs
+│   │       ├── vaccine_histogram.rs
+│   │       └── herd_price_series.rs
+│   ├── goat/
+│   │   ├── mod.rs         // Re-exports goat table/views
+│   │   ├── table.rs       // CRUD goat table
+│   │   └── form.rs        // CRUD goat add/edit form
+│   ├── error.rs           // Error message component
+├── models
+│   ├── mod.rs             // Re-exports domain types
+│   ├── goat.rs
+│   ├── vaccine.rs
+│   ├── disease.rs
+│   ├── error.rs
+│   ├── task.rs
+├── services
+│   ├── mod.rs             // Re-exports service modules
+│   ├── api.rs             // All HTTP/REST requests
+│   └── logging.rs         // Tracing-driven logging wrapper
