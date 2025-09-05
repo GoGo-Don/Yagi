@@ -57,14 +57,12 @@ pub fn breed_input(props: &BreedInputProps) -> Html {
                 })}
             </select>
             if is_other {
-                html! {
-                    <input
-                        type="text"
-                        placeholder="Enter custom breed"
-                        value={props.other_value.clone()}
-                        oninput={on_other_input}
-                    />
-                }
+                <input
+                    type="text"
+                    placeholder="Enter custom breed"
+                    value={props.other_value.clone()}
+                    oninput={on_other_input}
+                />
             }
         </>
     }

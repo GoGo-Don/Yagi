@@ -4,14 +4,12 @@
 //! provides asynchronous fetching of goats from backend API,
 //! and implements robust error handling and logging.
 
-use std::rc::Rc;
-
 use crate::errors::AppError;
 use gloo_net::http::Request;
-use log::{error, info};
+use log::{error, info, trace, warn};
 use shared::GoatParams;
 use wasm_bindgen_futures::spawn_local;
-use yew::functional::Hook;
+use yew::prelude::*;
 use yewdux::prelude::*;
 
 /// Shared global store for the application's goat data.
@@ -39,7 +37,7 @@ impl GoatStore {
     ///
     /// # Arguments
     ///
-    /// * `dispatch` - A `Dispatch` handle to the current `GoatStore` state,
+    /// * `dinamespatch` - A `Dispatch` handle to the current `GoatStore` state,
     ///                allowing mutation through yewdux reducers.
     ///
     /// # Behavior
@@ -100,14 +98,6 @@ impl GoatStore {
         });
     }
 
-    /// Adds a new goat synchronously (local update)
-    pub fn add_goat(dispatch: Dispatch<Self>, goat: GoatParams) {
-        info!("Adding goat locally: {:?}", goat);
-        dispatch.reduce_mut(|store| {
-            store.goats.push(goat);
-        });
-    }
-
     /// Attempts to add a new goat by sending it to the backend.
     ///
     /// On success, updates store state and appends to goats list.
@@ -154,6 +144,138 @@ impl GoatStore {
                     }
                 }
             }
+        });
+    }
+
+    /// Asynchronously attempts to delete a goat by name from the backend and updates the local store accordingly.
+    /// Reports success or returns an error if unable to delete the goat.
+    ///
+    /// --------ARGUMENTS---------
+    ///
+    /// - `dispatch`:   Dispatch<Self>
+    ///                 A `Dispatch` handle to the current `GoatStore` state,
+    ///                 allowing mutation through yewdux reducers.
+    /// - `goat_name`:  String
+    ///                 The name of the goat to be deleted (case-sensitive).
+    /// - `on_result`:  Callback<Result<(), AppError>>
+    ///                 Callback called after the delete attempt finishes,
+    ///                 with `Ok(())` on success or an `AppError` variant on failure.
+    ///
+    /// --------RETURNS----------
+    ///
+    /// - This function does not return a value directly;
+    ///   all results and errors are communicated via the provided `on_result` callback.
+    ///
+    /// ------UPGRADE PENDING------
+    ///     Retry or user confirmation for network/server errors.
+    pub fn delete_goat_async(
+        dispatch: Dispatch<Self>,
+        goat_name: String,
+        on_result: Callback<Result<(), AppError>>,
+    ) {
+        spawn_local(async move {
+            trace!("Deleting goat {}", goat_name);
+            // Attempt HTTP DELETE, expecting backend to handle /goats/{name}
+            let url = "http://127.0.0.1:8000/goats";
+            let body = serde_json::json!({ "name": goat_name });
+            let outcome = match Request::delete(url).json(&body).unwrap().send().await {
+                Ok(response) if response.ok() => {
+                    dispatch.reduce_mut(|store| {
+                        let initial_len = store.goats.len();
+                        store.goats.retain(|g| g.name != goat_name);
+                        if store.goats.len() < initial_len {
+                            info!("Deleted goat '{}' from local store and backend.", goat_name);
+                        } else {
+                            warn!("Goat '{}' not found in local store, but backend deletion succeeded.", goat_name);
+                        }
+                    });
+                    Ok(())
+                }
+                Ok(response) => {
+                    let msg = format!(
+                        "Server error {} for deleting '{}'",
+                        response.status(),
+                        goat_name
+                    );
+                    error!("{}", msg);
+                    Err(AppError::Unexpected(msg))
+                }
+                Err(e) => {
+                    let msg = format!("Network error: {} while deleting '{}'", e, goat_name);
+                    error!("{}", msg);
+                    Err(AppError::NetworkError(msg))
+                }
+            };
+            on_result.emit(outcome);
+        });
+    }
+
+    /// Asynchronously sends an updated goat record to the backend server and updates the local store on success.
+    ///
+    /// --------ARGUMENTS---------
+    ///
+    /// - `dispatch`:    Dispatch<Self>
+    ///                  A `Dispatch` handle to the current `GoatStore` state,
+    ///                  allowing mutation through yewdux reducers.
+    /// - `updated_goat`: GoatParams
+    ///                  Struct containing the updated details of the goat.
+    /// - `on_result`:   Callback<Result<(), AppError>>
+    ///                  Callback which receives `Ok(())` on successful update,
+    ///                  or an `AppError` detailing any failure.
+    ///
+    /// --------RETURNS----------
+    ///
+    /// - This function returns nothing directly; it reports via the `on_result` callback.
+    ///
+    /// ------UPGRADE PENDING------
+    /// - Improve retry logic on network errors.
+    /// - Add validation or conflict resolution based on backend response.
+    pub fn update_goat_async(
+        dispatch: Dispatch<Self>,
+        updated_goat: GoatParams,
+        on_result: Callback<Result<(), AppError>>,
+    ) {
+        spawn_local(async move {
+            trace!("Updating goat");
+            // Assume your backend expects PUT with JSON payload at /goats/{name}
+            let url = "http://127.0.0.1:8000/goats";
+            let response = Request::put(&url).json(&updated_goat).unwrap().send().await;
+
+            let outcome = match response {
+                Ok(resp) if resp.ok() => {
+                    // Update local store on success
+                    dispatch.reduce_mut(|store| {
+                        if let Some(pos) =
+                            store.goats.iter().position(|g| g.name == updated_goat.name)
+                        {
+                            store.goats[pos] = updated_goat.clone();
+                        } else {
+                            // Optionally add if not found
+                            store.goats.push(updated_goat.clone());
+                        }
+                    });
+                    info!("Successfully updated goat '{}'", updated_goat.name);
+                    Ok(())
+                }
+                Ok(resp) => {
+                    let msg = format!(
+                        "Server returned error {} while updating '{}'",
+                        resp.status(),
+                        updated_goat.name
+                    );
+                    error!("{}", msg);
+                    Err(AppError::Unexpected(msg))
+                }
+                Err(err) => {
+                    let msg = format!(
+                        "Network error while updating '{}': {}",
+                        updated_goat.name, err
+                    );
+                    error!("{}", msg);
+                    Err(AppError::NetworkError(msg))
+                }
+            };
+            on_result.emit(outcome);
         });
     }
 }

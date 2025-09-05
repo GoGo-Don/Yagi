@@ -1,6 +1,6 @@
 //! Main dashboard content area component.
 
-use crate::components::{AddGoatForm, GoatDelete, GoatList};
+use crate::components::{AddGoatForm, DeleteGoatsForm, GoatList, UpdateGoatForm};
 use yew::prelude::*;
 
 /// Dashboard area showing goat list, forms, and visualizations placeholder.
@@ -13,7 +13,8 @@ pub fn dashboard() -> Html {
             <h1>{"Dashboard"}</h1>
             <GoatList />
             <AddGoatForm />
-            <GoatDelete />
+            <DeleteGoatsForm />
+            <UpdateGoatForm />
             <div style="border: 1px dashed #bbb; margin-top: 30px; padding: 16px;">
                 <h3>{"Visualizations"}</h3>
                 <p>{"Graphs and analytics coming soon!"}</p>
